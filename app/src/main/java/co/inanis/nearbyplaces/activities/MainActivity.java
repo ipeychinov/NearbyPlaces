@@ -2,6 +2,7 @@ package co.inanis.nearbyplaces.activities;
 
 import android.Manifest;
 import android.annotation.SuppressLint;
+import android.arch.lifecycle.ViewModelProviders;
 import android.location.Location;
 import android.os.Bundle;
 import android.support.annotation.NonNull;
@@ -37,6 +38,7 @@ import butterknife.ButterKnife;
 import co.inanis.nearbyplaces.R;
 import co.inanis.nearbyplaces.adapters.SectionsPagerAdapter;
 import co.inanis.nearbyplaces.model.Place;
+import co.inanis.nearbyplaces.model.PlaceViewModel;
 import co.inanis.nearbyplaces.util.RequestUtil;
 import pub.devrel.easypermissions.AfterPermissionGranted;
 import pub.devrel.easypermissions.EasyPermissions;
@@ -54,6 +56,8 @@ public class MainActivity extends AppCompatActivity {
     private Location mLastLocation;
 
     private RequestUtil mRequestUtil;
+
+    private PlaceViewModel mViewModel;
 
     @BindView(R.id.container)
     ViewPager mViewPager;
@@ -78,6 +82,8 @@ public class MainActivity extends AppCompatActivity {
 
         mFusedLocationClient = LocationServices.getFusedLocationProviderClient(this);
         mRequestUtil = RequestUtil.getInstance(this);
+
+        mViewModel = ViewModelProviders.of(this).get(PlaceViewModel.class);
     }
 
     @Override
@@ -133,7 +139,7 @@ public class MainActivity extends AppCompatActivity {
         try {
             if (jsonObject.has("results")) {
                 List<Place> places = deserializeResponse(jsonObject.getJSONArray("results"));
-                //TODO display them in a list
+                mViewModel.updatePlaces(places);
             } else {
                 Toast.makeText(this, "No nearby places found", Toast.LENGTH_SHORT).show();
             }
@@ -149,7 +155,7 @@ public class MainActivity extends AppCompatActivity {
 
     private List<Place> deserializeResponse(JSONArray results) {
         GsonBuilder builder = new GsonBuilder();
-        builder.registerTypeAdapter(Place.class, new Place.PlaceDeserializer());
+        builder.registerTypeAdapter(Place.class, new Place.PlaceDeserializer(mLastLocation));
 
         Gson gson = builder.create();
         Type placeListType = new TypeToken<List<Place>>() {

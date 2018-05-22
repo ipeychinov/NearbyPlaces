@@ -1,5 +1,7 @@
 package co.inanis.nearbyplaces.model;
 
+import android.location.Location;
+
 import com.google.gson.JsonDeserializationContext;
 import com.google.gson.JsonDeserializer;
 import com.google.gson.JsonElement;
@@ -11,17 +13,17 @@ import java.lang.reflect.Type;
 public class Place {
     private String placeId;
     private String name;
-    private double latitude;
-    private double longitude;
+    private Location location;
+    private double distance;
 
     public Place() {
     }
 
-    public Place(String placeId, String name, double latitude, double longitude) {
+    public Place(String placeId, String name, Location location, double distance) {
         this.placeId = placeId;
         this.name = name;
-        this.latitude = latitude;
-        this.longitude = longitude;
+        this.location = location;
+        this.distance = distance;
     }
 
     public String getPlaceId() {
@@ -40,33 +42,45 @@ public class Place {
         this.name = name;
     }
 
-    public double getLatitude() {
-        return latitude;
+    public double getDistance() {
+        return distance;
     }
 
-    public void setLatitude(double latitude) {
-        this.latitude = latitude;
+    public void setDistance(double distance) {
+        this.distance = distance;
     }
 
-    public double getLongitude() {
-        return longitude;
+    public Location getLocation() {
+        return location;
     }
 
-    public void setLongitude(double longitude) {
-        this.longitude = longitude;
+    public void setLocation(Location location) {
+        this.location = location;
     }
 
     public static class PlaceDeserializer implements JsonDeserializer<Place> {
+
+        private Location mLastLocation;
+
+        public PlaceDeserializer(Location lastLocation) {
+            super();
+
+            mLastLocation = lastLocation;
+        }
 
         @Override
         public Place deserialize(JsonElement json, Type typeOfT, JsonDeserializationContext context) throws JsonParseException {
             JsonObject jsonObject = json.getAsJsonObject();
             JsonObject locationObject = jsonObject.get("geometry").getAsJsonObject().get("location").getAsJsonObject();
 
+            Location placeLocation = new Location("coordinates");
+            placeLocation.setLatitude(locationObject.get("lat").getAsDouble());
+            placeLocation.setLongitude(locationObject.get("lng").getAsDouble());
+
             return new Place(jsonObject.get("place_id").getAsString(),
                     jsonObject.get("name").getAsString(),
-                    locationObject.get("lat").getAsDouble(),
-                    locationObject.get("lng").getAsDouble());
+                    placeLocation,
+                    mLastLocation.distanceTo(placeLocation) / 1000); //Distance in km
         }
     }
 }
