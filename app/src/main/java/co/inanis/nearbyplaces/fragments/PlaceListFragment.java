@@ -39,6 +39,14 @@ public class PlaceListFragment extends Fragment {
     }
 
     @Override
+    public void onAttach(Context context) {
+        super.onAttach(context);
+
+        PlaceViewModel model = ViewModelProviders.of(Objects.requireNonNull(getActivity())).get(PlaceViewModel.class);
+        model.getPlaces().observe(this, this::updateUI);
+    }
+
+    @Override
     public void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
     }
@@ -62,14 +70,6 @@ public class PlaceListFragment extends Fragment {
         Intent mapIntent = new Intent(Intent.ACTION_VIEW, gmmIntentUri);
         mapIntent.setPackage("com.google.android.apps.maps");
         startActivity(mapIntent);
-    }
-
-    @Override
-    public void onAttach(Context context) {
-        super.onAttach(context);
-
-        PlaceViewModel model = ViewModelProviders.of(Objects.requireNonNull(getActivity())).get(PlaceViewModel.class);
-        model.getPlaces().observe(this, this::updateUI);
     }
 
     private void updateUI(List<Place> places) {

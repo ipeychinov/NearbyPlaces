@@ -11,7 +11,7 @@ import com.google.gson.JsonParseException;
 import java.lang.reflect.Type;
 
 public class Place {
-    private String placeId;
+    private String placeId; // used in building the URI when opening the Maps app
     private String name;
     private Location location;
     private double distance;

@@ -65,6 +65,7 @@ public class MainActivity extends AppCompatActivity {
 
         ButterKnife.bind(this);
 
+        // === Generate tabbed layout ===
         Toolbar toolbar = findViewById(R.id.toolbar);
         setSupportActionBar(toolbar);
 
@@ -75,12 +76,18 @@ public class MainActivity extends AppCompatActivity {
         TabLayout tabLayout = findViewById(R.id.tabs);
         mViewPager.addOnPageChangeListener(new TabLayout.TabLayoutOnPageChangeListener(tabLayout));
         tabLayout.addOnTabSelectedListener(new TabLayout.ViewPagerOnTabSelectedListener(mViewPager));
+        // === Generate tabbed layout ===
 
         mFusedLocationClient = LocationServices.getFusedLocationProviderClient(this);
         mRequestUtil = RequestUtil.getInstance(this);
 
         mViewModel = ViewModelProviders.of(this).get(PlaceViewModel.class);
 
+        // a request is only made if there is no present data
+        // since the ViewModel retains the data on state
+        // changes like orientation this will trigger when
+        // you first start the activity, further requests for
+        // places can be made using the refresh button
         if (!mViewModel.hasPlaceData()) {
             findLocation();
         }
@@ -161,6 +168,8 @@ public class MainActivity extends AppCompatActivity {
 
     private List<Place> deserializeResponse(JSONArray results) {
         GsonBuilder builder = new GsonBuilder();
+        // Pass the last known location to the deserializer to calculate the
+        // distance between the place and the device
         builder.registerTypeAdapter(Place.class, new Place.PlaceDeserializer(mViewModel.getLocation().getValue()));
 
         Gson gson = builder.create();
