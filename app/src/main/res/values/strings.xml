@@ -3,18 +3,21 @@
 
     <string name="tab_title_bar_list">Bar list</string>
     <string name="tab_title_locations">Locations</string>
-
     <string name="action_refresh">Refresh</string>
-    <string name="section_format">Hello World from section: %1$d</string>
+    <string name="settings">Settings</string>
+    <string name="cancel">Cancel</string>
 
     <string name="location_rationale">This app needs to access your location in order to show you nearby bars.</string>
+    <string name="prompt_change_settings">Please enable location to view the nearby places.</string>
 
     <string name="url_template">https://maps.googleapis.com/maps/api/place/nearbysearch/json?location=%1$f,%2$f&amp;radius=%3$d&amp;type=%4$s&amp;key=%5$s</string>
-    <string name="places_api_key">insert_key_here</string>
-
     <string name="short_distance_template">%1$.1fkm</string>
     <string name="long_distance_template">%1$.1fkm away from you.</string>
     <string name="maps_uri_template">https://www.google.com/maps/search/?api=1&amp;query=%1$s&amp;query_place_id=%2$s</string>
+
     <string name="no_nearby_places">No nearby places found</string>
     <string name="failed_to_get_places">Failed to get nearby places.</string>
+    <string name="location_settings">Location settings</string>
+
+    <string name="places_api_key">insert_key_here</string>
 </resources>

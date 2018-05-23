@@ -3,11 +3,15 @@ package co.inanis.nearbyplaces.activities;
 import android.Manifest;
 import android.annotation.SuppressLint;
 import android.arch.lifecycle.ViewModelProviders;
+import android.content.DialogInterface;
+import android.content.Intent;
 import android.location.Location;
 import android.os.Bundle;
+import android.provider.Settings;
 import android.support.annotation.NonNull;
 import android.support.design.widget.TabLayout;
 import android.support.v4.view.ViewPager;
+import android.support.v7.app.AlertDialog;
 import android.support.v7.app.AppCompatActivity;
 import android.support.v7.widget.Toolbar;
 import android.view.Menu;
@@ -123,7 +127,9 @@ public class MainActivity extends AppCompatActivity {
             mViewModel.updateLocation(location);
             requestNearbyPlaces(location.getLatitude(), location.getLongitude());
         } else {
-            //TODO check if locations is enabled
+            if (!isLocationEnabled()) {
+                promptChangeLocationSettings();
+            }
         }
     }
 
@@ -162,5 +168,32 @@ public class MainActivity extends AppCompatActivity {
         }.getType();
 
         return gson.fromJson(results.toString(), placeListType);
+    }
+
+    private boolean isLocationEnabled() {
+        int locationMode = Settings.Secure.LOCATION_MODE_OFF;
+        try {
+            locationMode = Settings.Secure.getInt(getContentResolver(), Settings.Secure.LOCATION_MODE);
+        } catch (Settings.SettingNotFoundException e) {
+            e.printStackTrace();
+        }
+
+        return locationMode != Settings.Secure.LOCATION_MODE_OFF;
+    }
+
+    private void promptChangeLocationSettings() {
+        AlertDialog.Builder builder = new AlertDialog.Builder(this);
+
+        builder.setTitle(R.string.location_settings)
+                .setMessage(R.string.prompt_change_settings)
+                .setPositiveButton(R.string.settings, this::openSettings)
+                .setNegativeButton(R.string.cancel, (dialog, which) -> dialog.cancel());
+
+        builder.create().show();
+    }
+
+    private void openSettings(DialogInterface dialogInterface, int which) {
+        Intent locationIntent = new Intent(Settings.ACTION_LOCATION_SOURCE_SETTINGS);
+        startActivity(locationIntent);
     }
 }
