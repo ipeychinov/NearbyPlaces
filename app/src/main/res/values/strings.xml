@@ -12,9 +12,9 @@
     <string name="url_template">https://maps.googleapis.com/maps/api/place/nearbysearch/json?location=%1$f,%2$f&amp;radius=%3$d&amp;type=%4$s&amp;key=%5$s</string>
     <string name="places_api_key">insert_key_here</string>
 
-    <string name="distance_template">%1$.1fkm</string>
+    <string name="short_distance_template">%1$.1fkm</string>
+    <string name="long_distance_template">%1$.1fkm away from you.</string>
     <string name="maps_uri_template">https://www.google.com/maps/search/?api=1&amp;query=%1$s&amp;query_place_id=%2$s</string>
-
-    <!-- TODO: Remove or change this placeholder text -->
-    <string name="hello_blank_fragment">Hello blank fragment</string>
+    <string name="no_nearby_places">No nearby places found</string>
+    <string name="failed_to_get_places">Failed to get nearby places.</string>
 </resources>

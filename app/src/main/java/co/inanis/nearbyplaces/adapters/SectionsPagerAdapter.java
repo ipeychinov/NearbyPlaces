@@ -4,7 +4,7 @@ import android.support.v4.app.Fragment;
 import android.support.v4.app.FragmentManager;
 import android.support.v4.app.FragmentPagerAdapter;
 
-import co.inanis.nearbyplaces.activities.MainActivity;
+import co.inanis.nearbyplaces.fragments.MapFragment;
 import co.inanis.nearbyplaces.fragments.PlaceListFragment;
 
 public class SectionsPagerAdapter extends FragmentPagerAdapter {
@@ -18,14 +18,13 @@ public class SectionsPagerAdapter extends FragmentPagerAdapter {
 
     @Override
     public Fragment getItem(int position) {
-
         switch (position) {
             case PLACE_LIST_FRAGMENT_POSITION:
                 return PlaceListFragment.newInstance();
             case MAP_FRAGMENT_POSITION:
-                return MainActivity.PlaceholderFragment.newInstance(position + 1);
+                return MapFragment.newInstance();
             default:
-                return MainActivity.PlaceholderFragment.newInstance(-1);
+                return PlaceListFragment.newInstance();
         }
     }
 

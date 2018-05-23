@@ -74,7 +74,9 @@ public class PlaceListFragment extends Fragment {
 
     private void updateUI(List<Place> places) {
         mListAdapter.clear();
-        mListAdapter.addAll(places);
+        if (places != null && !places.isEmpty()) {
+            mListAdapter.addAll(places);
+        }
         mListAdapter.notifyDataSetChanged();
     }
 }

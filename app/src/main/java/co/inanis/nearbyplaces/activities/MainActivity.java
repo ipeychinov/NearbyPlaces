@@ -7,16 +7,11 @@ import android.location.Location;
 import android.os.Bundle;
 import android.support.annotation.NonNull;
 import android.support.design.widget.TabLayout;
-import android.support.v4.app.Fragment;
 import android.support.v4.view.ViewPager;
 import android.support.v7.app.AppCompatActivity;
 import android.support.v7.widget.Toolbar;
-import android.view.LayoutInflater;
 import android.view.Menu;
 import android.view.MenuItem;
-import android.view.View;
-import android.view.ViewGroup;
-import android.widget.TextView;
 import android.widget.Toast;
 
 import com.android.volley.VolleyError;
@@ -50,10 +45,7 @@ public class MainActivity extends AppCompatActivity {
     private static final int SEARCH_RADIUS = 3000;
     private static final String SEARCH_PLACE_TYPE = "bar";
 
-    private SectionsPagerAdapter mSectionsPagerAdapter;
-
     private FusedLocationProviderClient mFusedLocationClient;
-    private Location mLastLocation;
 
     private RequestUtil mRequestUtil;
 
@@ -72,7 +64,7 @@ public class MainActivity extends AppCompatActivity {
         Toolbar toolbar = findViewById(R.id.toolbar);
         setSupportActionBar(toolbar);
 
-        mSectionsPagerAdapter = new SectionsPagerAdapter(getSupportFragmentManager());
+        SectionsPagerAdapter mSectionsPagerAdapter = new SectionsPagerAdapter(getSupportFragmentManager());
 
         mViewPager.setAdapter(mSectionsPagerAdapter);
 
@@ -84,6 +76,10 @@ public class MainActivity extends AppCompatActivity {
         mRequestUtil = RequestUtil.getInstance(this);
 
         mViewModel = ViewModelProviders.of(this).get(PlaceViewModel.class);
+
+        if (!mViewModel.hasPlaceData()) {
+            findLocation();
+        }
     }
 
     @Override
@@ -124,7 +120,7 @@ public class MainActivity extends AppCompatActivity {
 
     private void onLocationFound(Location location) {
         if (location != null) {
-            mLastLocation = location;
+            mViewModel.updateLocation(location);
             requestNearbyPlaces(location.getLatitude(), location.getLongitude());
         } else {
             //TODO check if locations is enabled
@@ -137,15 +133,19 @@ public class MainActivity extends AppCompatActivity {
 
     private void onResponse(JSONObject jsonObject) {
         try {
-            if (jsonObject.has("results")) {
-                List<Place> places = deserializeResponse(jsonObject.getJSONArray("results"));
-                mViewModel.updatePlaces(places);
+            if (jsonObject.has("status") && jsonObject.get("status").equals("OK")) {
+                if (jsonObject.has("results")) {
+                    List<Place> places = deserializeResponse(jsonObject.getJSONArray("results"));
+                    mViewModel.updatePlaces(places);
+                } else {
+                    Toast.makeText(this, R.string.no_nearby_places, Toast.LENGTH_SHORT).show();
+                }
             } else {
-                Toast.makeText(this, "No nearby places found", Toast.LENGTH_SHORT).show();
+                Toast.makeText(this, R.string.failed_to_get_places, Toast.LENGTH_SHORT).show();
             }
         } catch (JSONException e) {
             e.printStackTrace();
-            Toast.makeText(this, "Failed to get nearby places.", Toast.LENGTH_SHORT).show();
+            Toast.makeText(this, R.string.failed_to_get_places, Toast.LENGTH_SHORT).show();
         }
     }
 
@@ -155,47 +155,12 @@ public class MainActivity extends AppCompatActivity {
 
     private List<Place> deserializeResponse(JSONArray results) {
         GsonBuilder builder = new GsonBuilder();
-        builder.registerTypeAdapter(Place.class, new Place.PlaceDeserializer(mLastLocation));
+        builder.registerTypeAdapter(Place.class, new Place.PlaceDeserializer(mViewModel.getLocation().getValue()));
 
         Gson gson = builder.create();
         Type placeListType = new TypeToken<List<Place>>() {
         }.getType();
 
         return gson.fromJson(results.toString(), placeListType);
-    }
-
-    /**
-     * A placeholder fragment containing a simple view.
-     */
-    public static class PlaceholderFragment extends Fragment {
-        /**
-         * The fragment argument representing the section number for this
-         * fragment.
-         */
-        private static final String ARG_SECTION_NUMBER = "section_number";
-
-        public PlaceholderFragment() {
-        }
-
-        /**
-         * Returns a new instance of this fragment for the given section
-         * number.
-         */
-        public static PlaceholderFragment newInstance(int sectionNumber) {
-            PlaceholderFragment fragment = new PlaceholderFragment();
-            Bundle args = new Bundle();
-            args.putInt(ARG_SECTION_NUMBER, sectionNumber);
-            fragment.setArguments(args);
-            return fragment;
-        }
-
-        @Override
-        public View onCreateView(LayoutInflater inflater, ViewGroup container,
-                                 Bundle savedInstanceState) {
-            View rootView = inflater.inflate(R.layout.fragment_main, container, false);
-            TextView textView = (TextView) rootView.findViewById(R.id.section_label);
-            textView.setText(getString(R.string.section_format, getArguments().getInt(ARG_SECTION_NUMBER)));
-            return rootView;
-        }
     }
 }

@@ -36,7 +36,7 @@ public class PlaceListAdapter extends ArrayAdapter<Place> {
         name.setText(place.getName());
 
         TextView distance = view.findViewById(R.id.distance);
-        distance.setText(getContext().getString(R.string.distance_template, place.getDistance()));
+        distance.setText(getContext().getString(R.string.short_distance_template, place.getDistance()));
 
         view.setTag(place);
 
