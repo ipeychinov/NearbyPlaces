@@ -42,6 +42,8 @@ public class PlaceListFragment extends Fragment {
     public void onAttach(Context context) {
         super.onAttach(context);
 
+        mListAdapter = new PlaceListAdapter(context, new ArrayList<>());
+
         PlaceViewModel model = ViewModelProviders.of(Objects.requireNonNull(getActivity())).get(PlaceViewModel.class);
         model.getPlaces().observe(this, this::updateUI);
     }
@@ -57,7 +59,6 @@ public class PlaceListFragment extends Fragment {
         View rootView = inflater.inflate(R.layout.fragment_place_list, container, false);
         ButterKnife.bind(this, rootView);
 
-        mListAdapter = new PlaceListAdapter(Objects.requireNonNull(getContext()), new ArrayList<>());
         mPlaceListView.setAdapter(mListAdapter);
         mPlaceListView.setOnItemClickListener(this::onPlaceClicked);
 
